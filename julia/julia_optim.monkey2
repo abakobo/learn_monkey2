@@ -3,19 +3,20 @@
 ' Julia Set example ------AVOIDING Structs------- (and resizable window)
 '
 '     a monkey 2 example-learning exercise initiated by abakobo
-'     next steps/points of interest is 1:to optimise: -the drawpoint speed
+'     next steps/points of interest is (done)1:to optimise: -the drawpoint speed
 '                                                        (done?, optimised by marksibly, using pixmap and pointer
-'                                                        will try to have the pixel pointer as a field to avoid the call of New
-'                                                        and also using smaller pixel formats for pixmap)
+'                                                        pointer is faster local compared to field
+'                                                        should try using smaller pixel formats for pixmap (not done, need to understand how to point to 24bits))
 '                                                     -the choice for globals, fields, locals, struct:
 '                                                        using struct for iterations is slower, see julia_with_struct(non_optim).monkey2
 '                                                        Double or Float doesn't change anything (on 64bit computers at least?)
 '                                                        Local is faster for basic variables, fields and globals seems to have same speed
 '
-'                                      2:to make a kind of "explorer": zooming, Threshold, Iterations, +Constant(various sets)
+'                                      (done)2:to make a kind of "explorer": zooming, Threshold, Iterations, +Constant(various sets)
 '                                     
-'                                      3:to save pictures or even animations!?
+'                                      (done)3:to save pictures
 '
+'                                            
  
 #Import "<std>"
 #Import "<mojo>"
@@ -35,17 +36,38 @@ Global Palette:UInt[]
  
 Class Julia Extends Window
  
-	Field pixmap:=New Pixmap( w_width,w_height )
+	
 	Field image:=New Image( w_width,w_height,TextureFlags.Dynamic )
 	Field Cr:Double=0.0, Ci:Double=0.0
-  Field modif_const:=True
-  Field count:=-1
-  Field modif_const_mouse:=True
+  Field modif_const:=True 'Blocks the anim or not (true=animated) (bad name)
+  Field count:=-1 'count for the auto anim
+  Field modif_const_mouse:=False 'flag/selector for auto or mouse anim (bad name)
+  Field pixmap:=New Pixmap( w_width,w_height,PixelFormat.RGBA32 )
+  Field saveIt:=False
+  
  
 	Method New( title:String,width:Int,height:Int,flags:WindowFlags=WindowFlags.Resizable )
 		Super.New( title,width,height,flags )
 	End
 	
+	'
+	'These are equivalent to Keyboard.KeyPressed(Key.XXX) But with better memory of things
+	'Sometimes in OnRender with low FPS it skips some Keyboard.Keyxxxxx here not!
+	'
+	Method OnKeyEvent( event:KeyEvent ) Override	
+		Select event.Type
+			Case EventType.KeyDown
+			Select event.Key
+				Case Key.Space
+			    modif_const=Not modif_const
+			  Case Key.P
+          saveIt=True
+        Case Key.C
+          modif_const_mouse=Not modif_const_mouse
+			End Select
+		End Select		
+	End Method
+
 	Method OnRender( canvas:Canvas ) Override
 	
 	
@@ -56,6 +78,7 @@ Class Julia Extends Window
 	Local ta:Int,tb:Int,tj:Int 'the timer vars
 	Local x:Int,y:Int 'coord iterators
 	Local max_wh:Int 'to get the maximal value of the window wether height or width
+  Local p:UInt Ptr
 		
 	' mandatory for continuous render
 	App.RequestRender()
@@ -72,7 +95,7 @@ Class Julia Extends Window
     	
     	pxSize=pxSize*(maxs/(maxs2*1.0)) 'adapt zoom to new window size (because zoom factor is pixel's lenght)
     	
-    	image.Discard() 'Images are not Garbage Collected so it's always better to Discard before changing it... (don't know if it's usefull in this case)
+    	image.Discard() 'Images are not Garbage Collected so it's always better to Discard before changing it... (here it's a Field so probably not usefull)
     	image=New Image( w_width,w_height,TextureFlags.Dynamic )
     	pixmap=New Pixmap( w_width,w_height )
     End If
@@ -100,12 +123,10 @@ Class Julia Extends Window
       MaxIt=Max(2,MaxIt-1)
       CreateGlobalPalette()
     Endif
-    If Keyboard.KeyReleased(Key.C|Key.Raw) Then modif_const_mouse=Not modif_const_mouse
-    If Keyboard.KeyReleased(Key.Space) Or Mouse.ButtonPressed(MouseButton.Left) Then modif_const=Not modif_const 
    
     
     '
-    ' anim switch (auto or mouse)
+    ' auto or mouse anim
     '
     If modif_const_mouse=True
      '
@@ -131,11 +152,10 @@ Class Julia Extends Window
     ' Calculates Julia in indexed colors (iterations up to MaxIt-1 due to array starting at 0)
     ' and copy it to the pixmap with pointer for faster copy (faster than stepixel necause the adress only calculated #height times
     '
-		ta=Millisecs()
 		
 		For y=0 Until w_height
  
-			Local p:=Cast<UInt Ptr>( pixmap.PixelPtr( 0,y ) )
+			p=Cast<UInt Ptr>( pixmap.PixelPtr( 0,y ) )
 		
 			Zi=(y-(w_height/2.0))*pxSize+viewCenter_i
 				
@@ -157,13 +177,28 @@ Class Julia Extends Window
 		image.Texture.PastePixmap( pixmap,0,0 )
 		canvas.DrawImage( image,0,0 )
 
+    '
+    ' Save the pixmap (if asked) before drawing text on it
+    '
+    If saveIt=True 'this is on the eventlistener for better response while on low FPS
+      saveIt=False
+      Local filename:="Nothing"
+      filename = RequestFile("Save the file","png",True,"Julia")
+      print ("youy"+filename+"youy")
+      If filename<>""
+        pixmap.Save(filename)
+      Else
+        Notify("Blempro","No files where selected")
+      Endif
+    
+    Endif
     
 		' Prints
 		'
 		canvas.Color=Color.White
     
-		canvas.DrawText("Click or Space to block const anim --- C to switch to auto/anim or mouse anim",0,0)
-		canvas.DrawText("W/S(Raw):Zoom --- A/D(Raw):Thershold --- I/K:Iterations",0,20)
+		canvas.DrawText("Space: Pause/Play --- C to switch to auto-anim or mouse-anim --- P:Save as PNG",0,0)
+		canvas.DrawText("W/S(Raw):Zoom --- A/D(Raw):Thershold --- I/K:Iterations --- Cursor:Move",0,20)
 		canvas.DrawText("Cr:"+Cr,0,40)
     canvas.DrawText(" Ci:"+Ci,175,40)
     canvas.DrawText(" Iter:"+MaxIt,350,40)
