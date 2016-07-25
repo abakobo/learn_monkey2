@@ -10,6 +10,7 @@
 '                                                     -the choice for globals, fields, locals, struct:
 '                                                        using struct for iterations is slower, see julia_with_struct(non_optim).monkey2
 '                                                        Double or Float doesn't change anything (on 64bit computers at least?)
+'                                                        Local is faster for basic variables, fields and globals seems to have same speed
 '
 '                                      2:to make a kind of "explorer": zooming, Threshold, Iterations, +Constant(various sets)
 '                                     
@@ -25,17 +26,21 @@ Using mojo..
 Global w_width:=800 'initial window size
 Global w_height:=600
  
-Global MaxIt:=64 'Julia's calculation precision
-Global Threshold:Double=1.1 'Julia's escape Threshold
-Global pxSize:Double=0.0035 'Initial size of a pixel on the complex plane (inverted zoom factor)
+Global MaxIt:=16 'Julia's calculation precision
+Global Threshold:Double=2.5 'Julia's escape Threshold
+Global pxSize:Double=0.006 'Initial size of a pixel on the complex plane (inverted zoom factor)
 Global viewCenter_r:Double=0.0, viewCenter_i:Double=0.0 'Initial center point for viewing (on complex plane)
+Global move_spd:Double=0.06
 Global Palette:UInt[]
  
 Class Julia Extends Window
  
 	Field pixmap:=New Pixmap( w_width,w_height )
 	Field image:=New Image( w_width,w_height,TextureFlags.Dynamic )
-	Field center_pt:=New Vec2i(0,0)
+	Field Cr:Double=0.0, Ci:Double=0.0
+  Field modif_const:=True
+  Field count:=-1
+  Field modif_const_mouse:=True
  
 	Method New( title:String,width:Int,height:Int,flags:WindowFlags=WindowFlags.Resizable )
 		Super.New( title,width,height,flags )
@@ -47,7 +52,7 @@ Class Julia Extends Window
 	'
 	'  local vars declaration
 	'
-	Local Cr:Double, Ci:Double, Zr:Double, Zi:Double ' the complex number parts (should probably use struct...)
+	Local Zr:Double, Zi:Double ' the complex number parts (should probably use struct...)
 	Local ta:Int,tb:Int,tj:Int 'the timer vars
 	Local x:Int,y:Int 'coord iterators
 	Local max_wh:Int 'to get the maximal value of the window wether height or width
@@ -58,7 +63,6 @@ Class Julia Extends Window
     '
     ' adapt to window size (resizable window)
     '
-    
     If  w_width<>Self.Rect.Size.X or w_height<>Self.Rect.Size.Y
     
       Local maxs:=Max(w_width,w_height)
@@ -71,18 +75,61 @@ Class Julia Extends Window
     	image.Discard() 'Images are not Garbage Collected so it's always better to Discard before changing it... (don't know if it's usefull in this case)
     	image=New Image( w_width,w_height,TextureFlags.Dynamic )
     	pixmap=New Pixmap( w_width,w_height )
-    End If 
+    End If
+    
+    
     
     '
-    ' get the mouse coord and transform it to the complex constant used in Julia set
     '
-		Cr=(App.MouseLocation.x-(w_width/2.0))*pxSize+viewCenter_r
-		Ci=(App.MouseLocation.y-(w_height/2.0))*pxSize+viewCenter_i
+    '   Keyboard controls
+    '
+    '
+    If Keyboard.KeyDown(Key.Up) Then viewCenter_i-=move_spd*(pxSize/0.006)
+    If Keyboard.KeyDown(Key.Down) Then viewCenter_i+=move_spd*(pxSize/0.006)
+    If Keyboard.KeyDown(Key.Left) Then viewCenter_r-=move_spd*(pxSize/0.006)
+    If Keyboard.KeyDown(Key.Right) Then viewCenter_r+=move_spd*(pxSize/0.006)
+    If Keyboard.KeyDown(Key.W|Key.Raw) Then pxSize=pxSize/1.05
+    If Keyboard.KeyDown(Key.S|Key.Raw) Then pxSize=pxSize*1.05
+    If Keyboard.KeyDown(Key.A|Key.Raw) Then Threshold/=1.01
+    If Keyboard.KeyDown(Key.D|Key.Raw) Then Threshold*=1.01
+    If Keyboard.KeyDown(Key.I|Key.Raw)
+      MaxIt+=1
+      CreateGlobalPalette()
+    Endif
+    If Keyboard.KeyDown(Key.K|Key.Raw) 
+      MaxIt=Max(2,MaxIt-1)
+      CreateGlobalPalette()
+    Endif
+    If Keyboard.KeyReleased(Key.C|Key.Raw) Then modif_const_mouse=Not modif_const_mouse
+    If Keyboard.KeyReleased(Key.Space) Or Mouse.ButtonPressed(MouseButton.Left) Then modif_const=Not modif_const 
+   
+    
+    '
+    ' anim switch (auto or mouse)
+    '
+    If modif_const_mouse=True
+     '
+     ' get the mouse coord and transform it to the complex constant used in Julia set
+     '
+     If modif_const=True
+      Cr=(App.MouseLocation.x-(w_width/2.0))*pxSize+viewCenter_r
+      Ci=(App.MouseLocation.y-(w_height/2.0))*pxSize+viewCenter_i
+		 Endif
+		Else
+		 '
+		 ' create an anim while modifying the julia's const
+		 '
+		 If modif_const=True
+		  count+=1
+		  Cr=1.65*Cos(count/29.0)
+      Ci=1.4*Sin(count/30.0)
+     Endif
+    Endif
 		
 		
     '
     ' Calculates Julia in indexed colors (iterations up to MaxIt-1 due to array starting at 0)
-    ' and copy it to the pixmap
+    ' and copy it to the pixmap with pointer for faster copy (faster than stepixel necause the adress only calculated #height times
     '
 		ta=Millisecs()
 		
@@ -104,23 +151,23 @@ Class Julia Extends Window
 			
 		Next
 		
-		tb=Millisecs()
-		tj=tb-ta 'Records the time it took to calculate Julia and copy it to the pixmap
-    
+    '
+    '  copy the pixmap to an image and put the image to the main canvas
+    '
 		image.Texture.PastePixmap( pixmap,0,0 )
 		canvas.DrawImage( image,0,0 )
-		
-		ta=Millisecs()
-    tb=ta-tb
+
     
-		' Prints timers and FPS
+		' Prints
 		'
 		canvas.Color=Color.White
     
-		canvas.DrawText( "Size="+Self.Rect.Size.ToString(),0,0 )
-		canvas.DrawText("Julia to pixmap time: "+tj,0,15)
-		canvas.DrawText("pixmap to canvas time: "+tb,0,30)
-		canvas.DrawText("FPS:"+App.FPS,0,45)
+		canvas.DrawText("Click or Space to block const anim --- C to switch to auto/anim or mouse anim",0,0)
+		canvas.DrawText("W/S(Raw):Zoom --- A/D(Raw):Thershold --- I/K:Iterations",0,20)
+		canvas.DrawText("Cr:"+Cr,0,40)
+    canvas.DrawText(" Ci:"+Ci,175,40)
+    canvas.DrawText(" Iter:"+MaxIt,350,40)
+		canvas.DrawText("FPS:"+App.FPS,0,55)
 	End
  
 End
@@ -153,10 +200,10 @@ End
 '
 Function CreateGlobalPalette:Void()
  
-	Palette=New UInt[MaxIt] 'Palette is Global, declared at top
+	Palette=New UInt[MaxIt] 'Palette is Global, Max It is global. declared at top
   
 	For Local i:=0 Until MaxIt-1
-		Palette[i]=ColorToBGRA( New Color(Abs(Sin(2.0*Pi*i/MaxIt)),Abs(Sin(1.2*Pi*i/MaxIt)),0.6-(i/(MaxIt*1.0))*0.3) )
+		Palette[i]=ColorToBGRA( New Color(0.9*Abs(Sin(1.0*Pi*i/MaxIt)),0.9*Abs(Sin(1.0*Pi*i/MaxIt)),0.35-(i/(MaxIt*1.0))*0.34) )
 	Next
  
 	Palette[MaxIt-1]=ColorToBGRA( Color.Black )
