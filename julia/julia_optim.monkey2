@@ -1,20 +1,18 @@
 '
 '
-' Julia Set example ------AVOIDING Structs------- (and resizable window)
+' Julia Set example - resizable window
 '
-'     a monkey 2 example-learning exercise initiated by abakobo
-'     next steps/points of interest is (done)1:to optimise: -the drawpoint speed
-'                                                        (done?, optimised by marksibly, using pixmap and pointer
-'                                                        pointer is faster local compared to field
+'     a monkey 2 example-learning exercise
+'     next steps/points of interest is to optimise: -the drawpoint speed
+'                                                        (done?, optimised by marksibly, using pixmap and pointer,
+'                                                        pointer is faster local compared to field,
 '                                                        should try using smaller pixel formats for pixmap (not done, need to understand how to point to 24bits))
 '                                                     -the choice for globals, fields, locals, struct:
-'                                                        using struct for iterations is slower, see julia_with_struct(non_optim).monkey2
+'                                                        using struct for iterations is slower, see julia_with_struct(non_optim).monkey2 (github)
 '                                                        Double or Float doesn't change anything (on 64bit computers at least?)
 '                                                        Local is faster for basic variables, fields and globals seems to have same speed
 '
-'                                      (done)2:to make a kind of "explorer": zooming, Threshold, Iterations, +Constant(various sets)
-'                                     
-'                                      (done)3:to save pictures
+'                                                     -??? 
 '
 '                                            
  
@@ -24,8 +22,8 @@
 Using std..
 Using mojo..
  
-Global w_width:=800 'initial window size
-Global w_height:=600
+Global w_width:=1000 'initial window size
+Global w_height:=700
  
 Global MaxIt:=16 'Julia's calculation precision
 Global Threshold:Double=2.5 'Julia's escape Threshold
@@ -77,7 +75,7 @@ Class Julia Extends Window
 	Local Zr:Double, Zi:Double ' the complex number parts (should probably use struct...)
 	Local ta:Int,tb:Int,tj:Int 'the timer vars
 	Local x:Int,y:Int 'coord iterators
-	Local max_wh:Int 'to get the maximal value of the window wether height or width
+	Local max_wh:Int 'to get the maximal value of the window height or width
   Local p:UInt Ptr
 		
 	' mandatory for continuous render
@@ -150,7 +148,7 @@ Class Julia Extends Window
 		
     '
     ' Calculates Julia in indexed colors (iterations up to MaxIt-1 due to array starting at 0)
-    ' and copy it to the pixmap with pointer for faster copy (faster than stepixel necause the adress only calculated #height times
+    ' and copy it to the pixmap with pointer for faster copy (faster than stepixel because the adress only calculated #height times)
     '
 		
 		For y=0 Until w_height
@@ -192,8 +190,8 @@ Class Julia Extends Window
       Endif
     
     Endif
-    
-		' Prints
+    DebugStop()
+		' Prints hohoho
 		'
 		canvas.Color=Color.White
     
