@@ -1,0 +1,23 @@
+<<<<<<< HEAD
+# build directories
+*.build*/
+*.products
+*.products*/
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+
+########
+## OSX
+########
+
+>>>>>>> origin/master
+.DS_Store
