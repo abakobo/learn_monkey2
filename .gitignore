@@ -1,25 +1,8 @@
 <<<<<<< HEAD
 # build directories
 *.build*/
-
-############
-## Windows
-############
-
-# Windows image file caches
-Thumbs.db
-
-# Folder config file
-Desktop.ini
-
-
-########
-## OSX
-########
-
-=======
-# build directories
-*.build*/
+*.products
+*.products*/
 
 ############
 ## Windows
