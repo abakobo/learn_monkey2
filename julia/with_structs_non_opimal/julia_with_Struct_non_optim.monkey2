@@ -18,6 +18,7 @@
  
 Using std..
 Using mojo..
+Using complexMath
  
 Global w_size:=New Vec2i(800,600) 'initial window size
  
@@ -124,6 +125,7 @@ Function NbIter:Int(Z:Cplxd,max_iter:Int,exit_radius:Double,C:Cplxd)
 	While i<max_iter-1 And Zr2+Zi2<er2
 	
     '-------------------------------------------------------------------
+    
     'Three different ways to calculate the square that will affect rendering time (visible due to lots of iterations)
     'Uncomment/Comment Following square calculations to see speed change 
     '
@@ -136,10 +138,17 @@ Function NbIter:Int(Z:Cplxd,max_iter:Int,exit_radius:Double,C:Cplxd)
 		Z.I=2*Z.r*Z.i + C.i
 		Z.R=Zr2-Zi2 +C.r
 		
-		' 3- The fastest (when using struct) uses Fields ( Lowercase r and i for Z.r Z.i) ---> 11FPS when mouse at center	
+	' 3- The fastest (when using struct) uses Fields ( Lowercase r and i for Z.r Z.i) ---> 11FPS when mouse at center	
 		'Z.i=2*Z.r*Z.i + C.i
-		'Z.r=Zr2-Zi2 +C.r
-		'-------------------------------------------------------------------
+	'	Z.r=Zr2-Zi2 +C.r
+	
+	
+	'-------------------------------------------------------------------
+		
+	'Comment/uncomment one of the above to see fps difference..	
+		
+		
+		
 		
 		Zr2=Z.r*Z.r
 		Zi2=Z.i*Z.i

@@ -1,4 +1,4 @@
-
+Namespace complexMath
 
 #rem monkeydoc Convenience type alias for Cplx\<Float\>.
 #end
