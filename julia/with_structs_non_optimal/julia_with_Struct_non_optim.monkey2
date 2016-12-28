@@ -18,7 +18,7 @@
  
 Using std..
 Using mojo..
-Using complexMath
+Using complexMath..
  
 Global w_size:=New Vec2i(800,600) 'initial window size
  
