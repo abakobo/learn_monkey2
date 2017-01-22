@@ -15,5 +15,6 @@ Function Main()
 	
 	ci=Factorial(4) 'should be 24..
 	ip = Cast<int Ptr>(ci)
-	Print ip[0]
+	Print "---"
+	Print ip[0] 'not working... too bad
 End

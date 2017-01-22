@@ -2,6 +2,9 @@
 
 
 
+Function passptr(ip:Int Ptr)
+Print ip[0]
+End
 
 Function Main()
 
@@ -14,6 +17,7 @@ Function Main()
 	Local pt2:Int Ptr
 	Local pt3:Int Ptr
 	pt=Varptr i[5]
+	passptr(pt)
 	pt2=i.Data
 	'pt3=pt2.Data   'error! an array of int and a pointer to int are more or less the same thing but not!
 	

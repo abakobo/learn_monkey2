@@ -15,5 +15,6 @@ Function Main()
 	funk(12)
 	'fp=Varptr funk()
 	fp=funk
+	fp(15)
 	
 End

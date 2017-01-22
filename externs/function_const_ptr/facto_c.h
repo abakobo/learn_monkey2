@@ -8,5 +8,6 @@ const int* Factorial(int M)
       factorial = factorial*i;
    }
    returner=&factorial;
+   printf("%d \n", factorial);
    return returner; // 'returning directly &factorial was not working, it had to be assigned to a 'named' int pointer
 }
