@@ -4,7 +4,9 @@ void register_callback(callback ptr_reg_callback,void* pointer);
 void my_callback(void* pointr)
 {
     printf("C callback\n");
-    *pointr=6;
+    int* ipt;
+    ipt=(int*)pointr;   
+    *ipt=6;
 }
 
 callback gime_c_callback(void)
@@ -16,8 +18,14 @@ return my_callback;
 {
     callback ptr_my_callback=my_callback;                           
     printf("inside C callcallback\n");
-    void* integptr'malloc?
-    register_callback(ptr_my_callback,integptr);
+    int i;
+    int* iptr;
+    i=7;
+    iptr=&i;
+    void* vptr;
+    vptr=iptr;
+    
+    register_callback(ptr_my_callback,vptr);
 }*/
 void register_callback(callback ptr_reg_callback,void* pointer)
 {
