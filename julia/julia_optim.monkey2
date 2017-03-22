@@ -184,13 +184,13 @@ Class Julia Extends Window
       filename = RequestFile("Save the file","png",True,"Julia")
       print ("youy"+filename+"youy")
       If filename<>""
-        pixmap.Save(filename)
+        'pixmap.Save(filename)
+        SaveTGA(filename,pixmap)
       Else
         Notify("Blempro","No files where selected")
       Endif
     
     Endif
-    DebugStop()
 		' Prints hohoho
 		'
 		canvas.Color=Color.White
@@ -242,6 +242,23 @@ Function CreateGlobalPalette:Void()
 	Palette[MaxIt-1]=ColorToBGRA( Color.Black )
  
 End
+ 
+Function SaveTGA(path:String, pixmap:Pixmap)
+	Local stream:=FileStream.Open(path,"w")
+	Local buffer:=New Byte[18]		
+	Local w:=pixmap.Width
+	Local h:=pixmap.Height	
+	buffer[2]=2
+	buffer[12]=w & 255
+	buffer[13]=w Shr 8
+	buffer[14]=h & 255
+	buffer[15]=h Shr 8
+	buffer[16]=32
+	buffer[17]=8
+	stream.Write(Varptr buffer[0],18)	
+	stream.Write(pixmap.Data,w*h*4)
+	stream.Close()
+End Function
  
 Function Main()
 	CreateGlobalPalette()

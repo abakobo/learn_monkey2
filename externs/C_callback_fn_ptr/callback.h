@@ -2,7 +2,11 @@
 
 void my_callback(void)
 {
-    printf("C stuff\n");
+ 
+    printf("Enter a character: ");
+char mystring[256];
+scanf( "%s" , mystring );  
+    printf("You entered %s.",mystring); 
 }
 
 typedef void (*callback)(void);
