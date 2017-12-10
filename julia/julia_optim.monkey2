@@ -184,8 +184,8 @@ Class Julia Extends Window
       filename = RequestFile("Save the file","png",True,"Julia")
       print ("youy"+filename+"youy")
       If filename<>""
-        'pixmap.Save(filename)
-        SaveTGA(filename,pixmap)
+        pixmap.Save(filename)
+        'SaveTGA(filename,pixmap)
       Else
         Notify("Blempro","No files where selected")
       Endif

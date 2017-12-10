@@ -1,0 +1,89 @@
+'-------------------------------------------------------------------
+'./v3.h
+'-------------------------------------------------------------------
+#ifndef V3_H
+#define V3_H
+
+
+struct sVector3
+{
+	float		x, y, z;
+	float  arros[5];
+    //
+	sVector3() = default;
+    //
+	sVector3(float a, float b, float c)
+	{
+		x = a;
+		y = b;
+		z = c;
+		arros[0]=9;
+		arros[1]=10;
+		arros[2]=11;
+		arros[3]=12;
+		arros[4]=13;
+	}
+    //
+	float aroule(float a[2])
+	{
+	return a[0]+a[1];
+	}
+};
+//
+inline sVector3 operator *(const sVector3& v, float s)
+{
+	return (sVector3(v.x * s, v.y * s, v.z * s));
+}
+//
+inline sVector3 operator /(const sVector3& v, float s)
+{
+	s = 1.0F / s;
+	return (sVector3(v.x * s, v.y * s, v.z * s));
+}
+//
+inline sVector3 operator -(const sVector3& v)
+{
+	return (sVector3(-v.x, -v.y, -v.z));
+}
+
+//
+inline float Dot(const sVector3& a, const sVector3& b)
+{
+	return (a.x * b.x + a.y * b.y + a.z * b.z);
+}
+//
+inline sVector3 Cross(const sVector3& a, const sVector3& b)
+{
+	return (sVector3(a.y * b.z - a.z * b.y,	                 a.z * b.x - a.x * b.z,	                 a.x * b.y - a.y * b.x));
+}
+//
+inline sVector3 Project(const sVector3& a, const sVector3& b)
+{
+	return (b * (Dot(a, b) / Dot(b, b)));
+}
+/*
+inline sVector3 Reject(const sVector3& a, const sVector3& b)
+{
+	return (a - b * (Dot(a, b) / Dot(b, b)));
+}
+*/
+inline float Magnitude(const sVector3& v)
+{
+	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
+}
+//
+inline sVector3 Normalize(const sVector3& v)
+{
+	return (v / Magnitude(v));
+}
+//
+inline sVector3 operator +(const sVector3& a, const sVector3& b)
+{
+	return (sVector3(a.x + b.x, a.y + b.y, a.z + b.z));
+}
+//
+inline sVector3 operator -(const sVector3& a, const sVector3& b)
+{
+	return (sVector3(a.x - b.x, a.y - b.y, a.z - b.z));
+}
+#endif
