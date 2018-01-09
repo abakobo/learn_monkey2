@@ -95,6 +95,7 @@ Class Julia Extends Window
     	
     	image.Discard() 'Images are not Garbage Collected so it's always better to Discard before changing it... (here it's a Field so probably not usefull)
     	image=New Image( w_width,w_height,TextureFlags.Dynamic )
+    	pixmap.Discard()
     	pixmap=New Pixmap( w_width,w_height )
     End If
     
@@ -236,7 +237,7 @@ Function CreateGlobalPalette:Void()
 	Palette=New UInt[MaxIt] 'Palette is Global, Max It is global. declared at top
   
 	For Local i:=0 Until MaxIt-1
-		Palette[i]=ColorToBGRA( New Color(0.9*Abs(Sin(1.0*Pi*i/MaxIt)),0.9*Abs(Sin(1.0*Pi*i/MaxIt)),0.35-(i/(MaxIt*1.0))*0.34) )
+		Palette[i]=ColorToBGRA( New Color(1.0*(0.9*Abs(Sin(1.0*Pi*i/MaxIt))),1.0*(0.9*Abs(Sin(1.0*Pi*i/MaxIt))),1.0*(.35-(i/(MaxIt*1.0))*0.34)) )
 	Next
  
 	Palette[MaxIt-1]=ColorToBGRA( Color.Black )
