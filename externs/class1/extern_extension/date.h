@@ -9,19 +9,25 @@ private:
     int m_day;
  
 public:
-    Date(int year, int month, int day);
+
 	
-	Date();
+
  
     void SetDate(int year, int month, int day);
  
     int getYear() { return m_year; }
     int getMonth() { return m_month; }
     int getDay()  { return m_day; }
-
-    virtual void MyVirtualMethod(int i) = 0;
 	
 	int foo;
+	
+	
+
+	~Date();
+		//private:
+	    Date(int year, int month, int day);
+		//Date();
+	
 };
  
 #endif

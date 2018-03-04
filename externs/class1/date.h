@@ -9,10 +9,7 @@ private:
     int m_day;
  
 public:
-    Date(int year, int month, int day);
-	
-	Date();
- 
+
     void SetDate(int year, int month, int day);
  
     int getYear() { return m_year; }
@@ -20,6 +17,13 @@ public:
     int getDay()  { return m_day; }
 	
 	int foo;
+		
+//private:
+	~Date();
+//private:
+	Date(int year, int month, int day);
+	Date();
+	
 };
  
 #endif

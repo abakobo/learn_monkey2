@@ -9,6 +9,11 @@ Date::Date()
 {
 	SetDate(1985, 1, 1);
 }
+
+Date::~Date()
+{
+	// nothing to do in this simple example
+}
  
 // Date member function
 void Date::SetDate(int year, int month, int day)

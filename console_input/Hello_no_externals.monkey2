@@ -37,5 +37,7 @@ Function Main()
 	Local answer:String = GetInput("Enter: ",50)
 	Print "good boy johny "+answer+ " is."
 	Print "all ok?"
+	
+	GetInput ("press Enter to continue",3)
  
 End

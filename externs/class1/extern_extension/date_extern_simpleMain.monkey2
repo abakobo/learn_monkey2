@@ -18,7 +18,7 @@ Public
 
 Class Date Extension
 	Method Youhou()
-		Print "youhou"+getYear()
+		Print "youhou "+getYear()
 	End
 End
 
@@ -27,22 +27,8 @@ Function Main()
 
 	Print "monkey2 extern class test"
 	
-	Local moment:Date
-	
-	moment=New Date()
-	
-	Print moment.getYear()
-	
-	moment=New Date(2077,9,10)
-	
-	Print moment.getYear()
-	
-	Print moment.foo 'has not been initialised yet
-	
-	moment.foo=3000
-	
-	Print moment.foo
-	
+	Local moment:=New Date(2018,02,19)
+
 	moment.Youhou()
 
 End
